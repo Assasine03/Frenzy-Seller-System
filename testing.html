@@ -130,6 +130,9 @@ function StartSettings(){
       var profname = document.createElement("div")
       profname.className = "name"
       profname.textContent = name
+      profname.onclick =  function CopyText(){
+        navigator.clipboard.writeText(name);
+      }
       var job = document.createElement("div")
       job.className = "job"
       job.textContent = ""
