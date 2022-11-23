@@ -100,11 +100,34 @@ var PastPlayers = {}
 function StartSettings(){
   
     function createNewLabel(name,ch,map,timeVal,time,price){
+
+
+      
       var par = document.getElementById("tags")
 
       //Center Frame of Character card
       var cent = document.createElement("div")
       cent.className = "center"
+
+      //Setting up Player in Players Dictionary
+      Players[name] = {
+            "Username": name,
+            "Channel": ch,
+            "Map": map,
+            "TimeIsKnown": timeVal,
+            "Time": time,
+            "Price": price,
+            "Frame": cent,
+            "Settings" : {
+              "Calculated Price":0,
+              "PastTime":0,
+              "editingPrice":false,
+              "editingTime":false,
+              "editingName":false,
+              "editingChannel":false,
+              "editingMap":false
+            }
+        }
 
       //profile
       var prof = document.createElement("div")
@@ -162,10 +185,10 @@ function StartSettings(){
       act.className = "actions"
       var chann = document.createElement("button")
       chann.className = "btn hvr-underline-from-center"
-      chann.textContent = "Channel ".concat(ch)
+      chann.textContent = "Channel: ".concat(ch)
       var mapp = document.createElement("button")
       mapp.className = "btn hvr-underline-from-center"
-      mapp.textContent = "Map  ".concat(map)
+      mapp.textContent = "Map: ".concat(map)
       act.appendChild(chann)
       act.appendChild(mapp)
 
@@ -253,6 +276,13 @@ function StartSettings(){
         denumb = time*60*60
       }
       var animate = setInterval(() => {
+        //Set-Reset Map,CH,PpH
+        plr = Players[name]
+        chann.textContent = "Channel: ".concat(plr.Channel)
+        mapp.textContent = "Map: ".concat(plr.Map)
+        nprice = plr.Price
+        box1val.textContent = nprice.concat("m/h")
+
         if (fzdenumb > 0) {
           fznumb = fznumb +1
           fzdenumb = fzdenumb-1
@@ -349,27 +379,11 @@ function StartSettings(){
 
         
         
-        Players[name] = {
-            "Username": name,
-            "Channel": ch,
-            "Map": map,
-            "TimeIsKnown": timeVal,
-            "Time": time,
-            "Price": price,
-            "Frame": cent,
-            "Settings" : {
-              "Calculated Price":0,
-              "PastTime":0,
-              "editingPrice":false,
-              "editingTime":false,
-              "editingName":false,
-              "editingChannel":false,
-              "editingMap":false
-            }
-        }
+        
         
         var par = document.getElementById("tags")
         par.appendChild(cent)
+        cent.appendChild(sp2)
         cent.appendChild(prof)
         cent.appendChild(stats)
         prof.appendChild(img)
@@ -377,7 +391,7 @@ function StartSettings(){
         prof.appendChild(job)
         prof.appendChild(waveholder)
         prof.appendChild(act)
-        cent.appendChild(sp2)
+        
 
         var curch = ch
         var lowch = 0
@@ -424,6 +438,21 @@ function StartSettings(){
         elemtag.style.opacity = 0;
         elemtag.style.pointerEvents = "none"
         elemtag.style.left = 50+"%";
+    }else if(plrName.value != ""){
+      name = plrName.value
+      if (channel.value != ""){
+        Players[name].Channel = channel.value
+        channel.value = ""
+      }
+      if (map.value != ""){
+        Players[name].Map = map.value
+        map.value = ""
+      }
+      if (pricePerHour.value != ""){
+        Players[name].Price = pricePerHour.value
+        pricePerHour.value = ""
+      }
+      plrName.value = ""
     }
 }
 
@@ -693,22 +722,21 @@ function myMove() {
   box-shadow:inset 1px 1px 0 #CCC;
   opacity : 1;
 }
-
-.tag .close{
-  border-radius: 25px;
-  border: 2px solid #dbb433;
-  position:absolute;
-  left: 20.5%;
-  top: 150%;
-  z-index: 3;
-  visibility: visible;
-  
-	
-	background: none;
-	font-size: 1.1rem;
-	box-sizing: border-box;
-	color: #d4b653;
+.close {
+    border-radius: 25px;
+    border: 0px solid #dbb433;
+    position: absolute;
+    left: 3.5%;
+    top: 2%;
+    z-index: 3;
+    visibility: visible;
+    position: absolute;
+    background: none;
+    font-size: 1.1rem;
+    box-sizing: border-box;
+    color: #d4b653;
 }
+
 
 .tag:hover .close{
   visibility: visible;
@@ -1534,7 +1562,7 @@ html {
 }
  .profile .actions .btn {
 	 display: block;
-	 width: 80px;
+	 width: 190px;
 	 height: 30px;
 	 margin: 0 auto 10px auto;
 	 background: none;
