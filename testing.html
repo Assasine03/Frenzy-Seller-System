@@ -186,9 +186,15 @@ function StartSettings(){
       var chann = document.createElement("button")
       chann.className = "btn hvr-underline-from-center"
       chann.textContent = "Channel: ".concat(ch)
+      
       var mapp = document.createElement("button")
       mapp.className = "btn hvr-underline-from-center"
       mapp.textContent = "Map: ".concat(map)
+      mapp.onclick = function CopyCH(){
+        var nMap = Players[name].Map
+        console.log(Players[name].Map)
+        navigator.clipboard.writeText(nMap);
+      }
       act.appendChild(chann)
       act.appendChild(mapp)
 
@@ -277,10 +283,10 @@ function StartSettings(){
       }
       var animate = setInterval(() => {
         //Set-Reset Map,CH,PpH
-        plr = Players[name]
+        var plr = Players[name]
         chann.textContent = "Channel: ".concat(plr.Channel)
         mapp.textContent = "Map: ".concat(plr.Map)
-        nprice = plr.Price
+        var nprice = plr.Price
         box1val.textContent = nprice.concat("m/h")
 
         if (fzdenumb > 0) {
@@ -439,7 +445,7 @@ function StartSettings(){
         elemtag.style.pointerEvents = "none"
         elemtag.style.left = 50+"%";
     }else if(plrName.value != ""){
-      name = plrName.value
+      var name = plrName.value
       if (channel.value != ""){
         Players[name].Channel = channel.value
         channel.value = ""
