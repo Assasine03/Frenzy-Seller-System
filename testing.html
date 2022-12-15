@@ -65,6 +65,24 @@
 
 <script> type="text/javascript"
 
+
+
+function getMSData(username){
+  var link = "https://api.maplestory.gg/v2/public/character/ems/Mitsuki0"  //Mitsuki0
+  link = link
+  fetch('link', {
+    method: 'GET',
+    headers: {
+        'Accept': 'application/json',
+    },
+})
+.then(response => response.text())
+.then(text => console.log(text))
+   
+}
+
+getMSData("Mitsuki0")
+
 function fadeOutEffect(fadeTarget,time) {
       var fadeEffect = setInterval(function () {
           if (!fadeTarget.style.opacity) {
