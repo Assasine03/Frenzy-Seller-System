@@ -64,21 +64,25 @@
 </html>
 
 <script> type="text/javascript"
-console.log("v1.2 Testversion v1")
+console.log("v1.2 Testversion v2")
 
 
 function getMSData(username){
-  var link = "https://api.maplestory.gg/v2/public/character/ems/"  //Mitsuki0
-  link = link+username
-  var xhr = new XMLHttpRequest();
-  xhr.open("GET", link);
-  xhr.setRequestHeader("Accept", "application/json");
-  xhr.onreadystatechange = function () {
+  var url = "https://api.maplestory.gg/v2/public/character/ems/Mitsuki0";
+
+var xhr = new XMLHttpRequest();
+xhr.open("GET", url);
+
+xhr.setRequestHeader("Accept", "application/json");
+
+xhr.onreadystatechange = function () {
    if (xhr.readyState === 4) {
       console.log(xhr.status);
       console.log(xhr.responseText);
    }};
-   xhr.send();
+
+xhr.send();
+
    
 }
 
