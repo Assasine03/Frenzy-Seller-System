@@ -63,25 +63,26 @@
 </body>
 </html>
 
+
+
 <script> type="text/javascript"
 console.log("v1.2 Testversion v2")
 
 
 function getMSData(username){
-  var url = "https://api.maplestory.gg/v2/public/character/ems/Mitsuki0";
 
-var xhr = new XMLHttpRequest();
-xhr.open("GET", url);
+  const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+const targetUrl = "https://api.maplestory.gg/v2/public/character/ems/Mitsuki0";
 
-xhr.setRequestHeader("Accept", "application/json");
+fetch(proxyUrl + targetUrl, {
+    headers: {
+      "Accept": "text/html"
+    }
+  })
+  .then(response => response.text())
+  .then(data => console.log(data))
+  .catch(error => console.error(error));
 
-xhr.onreadystatechange = function () {
-   if (xhr.readyState === 4) {
-      console.log(xhr.status);
-      console.log(xhr.responseText);
-   }};
-
-xhr.send();
 
    
 }
