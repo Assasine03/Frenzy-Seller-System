@@ -64,20 +64,21 @@
 </html>
 
 <script> type="text/javascript"
-console.log("v1.2 Testversion")
+console.log("v1.2 Testversion v1")
 
 
 function getMSData(username){
-  var link = "https://api.maplestory.gg/v2/public/character/ems/Mitsuki0"  //Mitsuki0
-  link = link
-  fetch('link', {
-    method: 'GET',
-    headers: {
-        'Accept': 'application/json',
-    },
-})
-.then(response => response.text())
-.then(text => console.log(text))
+  var link = "https://api.maplestory.gg/v2/public/character/ems/"  //Mitsuki0
+  link = link+username
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", link);
+  xhr.setRequestHeader("Accept", "application/json");
+  xhr.onreadystatechange = function () {
+   if (xhr.readyState === 4) {
+      console.log(xhr.status);
+      console.log(xhr.responseText);
+   }};
+   xhr.send();
    
 }
 
