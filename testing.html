@@ -42,7 +42,7 @@
 
 
 <link href="https://fonts.googleapis.com/css?family=Roboto:100" rel="stylesheet">
-<p id='head1' class='header'>Use this tool to sell Frenzy Service</p>
+<p id='head1' class='header'>Use this tool to sell Frenzy Service v1.4</p>
 <p id='head2' class='header'>Much better!</p>
 <p id='head3' class='header'>ign: Mitsuki0</p>
 <p id='head4' class='header'>Made by Assasine03#9403</p>
@@ -66,28 +66,50 @@
 
 
 <script> type="text/javascript"
-console.log("v1.2 Testversion v4")
+console.log("v1.4")
+var Players = {}
+var PastPlayers = {}
 
-
-function getMSData(username){
+function ReqMSData(username){
 
   const proxyUrl = "https://api.allorigins.win/get?callback=myFunc&url=";
-const targetUrl = "https://api.maplestory.gg/v2/public/character/ems/Mitsuki0";
+const targetUrl = "https://api.maplestory.gg/v2/public/character/ems/"+username;
 
-fetch(proxyUrl + targetUrl, {
+return fetch(proxyUrl + targetUrl, {
     headers: {
       "Accept": "text/html"
     }
   })
   .then(response => response.text())
-  .then(data => console.log(data))
-  .catch(error => console.error(error));
+  //.then(data => console.log(data))
+
+  .then(data => {
+        return data;
+    })
 
 
    
 }
 
-getMSData("Mitsuki0")
+function RequestMSDataUpdate(username){
+  var mrtest = ReqMSData(username)
+mrtest.then(function(val){
+  mrtest = val
+})
+setTimeout(function() {
+  mrtest = mrtest.replace("/**/ typeof myFunc === 'function' && myFunc(","")
+  mrtest = mrtest.replace(");","")
+  
+  mrtest = JSON.parse(mrtest)
+  mrtest.contents = JSON.parse(mrtest.contents)
+  if (Players[username] && mrtest.contents && mrtest.contents.CharacterData && mrtest.contents.CharacterData.CharacterImageURL){
+    Players[username].CharacterImageURL = mrtest.contents.CharacterData.CharacterImageURL
+    console.log(username,"data has been gathered and updated")
+  }else{
+    console.log(username,"could not be gathered")
+  }
+  }, 5000);
+}
 
 function fadeOutEffect(fadeTarget,time) {
       var fadeEffect = setInterval(function () {
@@ -101,7 +123,6 @@ function fadeOutEffect(fadeTarget,time) {
           }
       }, time);
   }
-
 
   function CloseEv(e){
     e = e || window.event;
@@ -129,8 +150,7 @@ function getDataWithKey(key){
     return data
   }
 }
-var Players = {}
-var PastPlayers = {}
+
 if (getDataWithKey("PlayerData") == false){
   setDataWithKey("PlayerData",{})
   setDataWithKey("PastPlayers",{})
@@ -152,9 +172,11 @@ var cent = document.createElement("div")
 cent.className = "center"
 if (!Players[name]){
 //Setting up Player in Players Dictionary
+
 Players[name] = {
       "Username": name,
       "Channel": ch,
+      "CharacterImageURL": "https://fedi.de/wp-content/uploads/woocommerce-placeholder-600x600.png",
       "Map": map,
       "TimeIsKnown": timeVal,
       "Time": time,
@@ -204,7 +226,7 @@ var imgpic = document.createElement("img")
 imgpic.alt = Players[name].Username
 imgpic.width = "70"
 imgpic.height = "70"
-imgpic.src = "https://fedi.de/wp-content/uploads/woocommerce-placeholder-600x600.png" //PlaceHolder for Characterimage
+imgpic.src = Players[name].CharacterImageURL//"https://fedi.de/wp-content/uploads/woocommerce-placeholder-600x600.png" //PlaceHolder for Characterimage
 img.appendChild(imgpic)
 
 //details
@@ -366,7 +388,15 @@ Players[name].TimeDetails.HourRunDown = hour
 Players[name].TimeDetails.DayRunDown = day
 setDataWithKey("PlayerData",Players)
 setDataWithKey("PastPlayers",PastPlayers)
+if (Players[name].CharacterImageURL == "https://fedi.de/wp-content/uploads/woocommerce-placeholder-600x600.png"){
+  console.log(name,"data has been requested")
+RequestMSDataUpdate(name)
+}
+
 var animate = setInterval(() => {
+  imgpic.src = Players[name].CharacterImageURL
+
+
   //Set-Reset Map,CH,PpH
   var plr = Players[name]
   if (!plr){
