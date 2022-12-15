@@ -82,8 +82,6 @@ function fadeOutEffect(fadeTarget,time) {
   function CloseEv(e){
     e = e || window.event;
     var target = e.target || e.srcElement;
-    console.log(Players)
-    console.log(target.parentElement.textContent)
     fadeOutEffect(target.parentElement,1)
     
     setTimeout(function() {
@@ -91,329 +89,413 @@ function fadeOutEffect(fadeTarget,time) {
     }, 500);
   }
 
-var Toggle = false
+function getCurrentTime(){
+  return Math.floor(Date.now() / 1000)
+}
+
+function setDataWithKey(key,data){
+  localStorage.setItem(key,JSON.stringify(data))
+}
+
+function getDataWithKey(key){
+  data = JSON.parse(localStorage.getItem(key))
+  if (!data){
+    return false
+  }else{
+    return data
+  }
+}
 var Players = {}
 var PastPlayers = {}
+if (getDataWithKey("PlayerData") == false){
+  setDataWithKey("PlayerData",{})
+  setDataWithKey("PastPlayers",{})
+}else{
+  Players = getDataWithKey("PlayerData")
+  PastPlayers = getDataWithKey("PastPlayers")
+}
+//console.log(Math.floor(Date.now() / 1000))
+var Toggle = false
+
+function createNewLabel(name,ch,map,timeVal,time,price,reload){
+
+
+starttime = getCurrentTime()
+var par = document.getElementById("tags")
+
+//Center Frame of Character card
+var cent = document.createElement("div")
+cent.className = "center"
+if (!Players[name]){
+//Setting up Player in Players Dictionary
+Players[name] = {
+      "Username": name,
+      "Channel": ch,
+      "Map": map,
+      "TimeIsKnown": timeVal,
+      "Time": time,
+      "UnixTimeOfStart": starttime,
+      "UnixTimeOfEnd": starttime+(time*60*60),
+      "CalcUnix": (starttime+(time*60*60))-starttime,
+      "TimeDetails": {
+        "FrenzyTime": 0,
+        "FrenzyRunDown": 0,
+        "FrenzyUnixEnd": 0,
+        "CurTime": 0,
+        "TimeRunDown": 0,
+        "SecRunDown": 0,
+        "MinRunDown": 0,
+        "HourRunDown": 0,
+        "DayRunDown": 0
+      },
+      "Price": price,
+      "Frame": cent,
+      "Settings" : {
+        "CalculatedPrice":0,
+        "PastTime":0,
+        "editingPrice":false,
+        "editingTime":false,
+        "editingName":false,
+        "editingChannel":false,
+        "editingMap":false
+      }
+  }
+}else if(Players[name]){
+  Players[name].Frame = cent
+}
+//profile
+var prof = document.createElement("div")
+prof.className = "profile"
+
+//improfile
+var img = document.createElement("div")
+img.className = "image"
+var circ1 = document.createElement("div")
+circ1.className = "circle-1"
+img.appendChild(circ1)
+var circ2 = document.createElement("div")
+circ2.className = "circle-2"
+img.appendChild(circ2)
+var imgpic = document.createElement("img")
+imgpic.alt = Players[name].Username
+imgpic.width = "70"
+imgpic.height = "70"
+imgpic.src = "https://fedi.de/wp-content/uploads/woocommerce-placeholder-600x600.png" //PlaceHolder for Characterimage
+img.appendChild(imgpic)
+
+//details
+var profname = document.createElement("div")
+profname.className = "name"
+profname.textContent = Players[name].Username
+profname.onclick =  function CopyText(){
+  navigator.clipboard.writeText(Players[name].Username);
+}
+var job = document.createElement("div")
+job.className = "job"
+job.textContent = ""
+
+//good looking wave lol BROKEN AF STUPID SHT
+var waveholder = document.createElement("div")
+
+//wavedetails
+
+var wavexml = document.createElementNS("http://www.w3.org/2000/svg","svg")
+//wavexml.setAttribute("xmlns","http://www.w3.org/2000/svg")
+wavexml.setAttributeNS(null,"width","40px")
+wavexml.setAttributeNS(null,"height","30px")
+wavexml.setAttributeNS(null,"viewBox","5 0 80 60")
+var wavepath = document.createElementNS("http://www.w3.org/2000/svg","path")
+wavepath.id = "wave"
+wavepath.setAttributeNS(null,"fill","none")
+wavepath.setAttributeNS(null,"stroke","#262626")
+wavepath.setAttributeNS(null,"stroke-width","2")
+wavepath.setAttributeNS(null,"stroke-linecap","round")
+wavepath.setAttributeNS(null,"d","M 0 37.5 c 7.684299348848887 0 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15")
+waveholder.appendChild(wavexml)
+wavexml.appendChild(wavepath)
+
+//actions editable
+var act = document.createElement("div")
+act.className = "actions"
+var chann = document.createElement("button")
+chann.className = "btn hvr-underline-from-center"
+chann.textContent = "Channel: ".concat(Players[name].Channel)
+
+var mapp = document.createElement("button")
+mapp.className = "btn hvr-underline-from-center"
+mapp.textContent = "Map: ".concat(Players[name].Map)
+mapp.onclick = function CopyCH(){
+  var nMap = Players[name].Map
+  navigator.clipboard.writeText(nMap);
+}
+act.appendChild(chann)
+act.appendChild(mapp)
+
+//stats
+var stats = document.createElement("div")
+stats.className = "stats"
+//Cost per Hour
+var box1 = document.createElement("div")
+box1.className = "box box1 hvr-underline-from-right"
+stats.appendChild(box1)
+
+var box1val = document.createElement("span")
+box1val.className = "value"
+box1val.textContent = Players[name].Price.concat("m/h")
+var box1valname = document.createElement("span")
+box1valname.className = "parameter"
+box1valname.textContent = "Price"
+box1.appendChild(box1val)
+box1.appendChild(box1valname)
+
+//Cost per Hour calculated with time
+var box2 = document.createElement("div")
+box2.className = "box box2 hvr-underline-from-right"
+stats.appendChild(box2)
+//console.log(time)
+//console.log(price)
+//console.log(((time+1)*price)-price)
+timeKnownVal = Players[name].Time*Players[name].Price || "0"
+//console.log(timeKnownVal)
+var box2val = document.createElement("span")
+box2val.className = "value"
+priceval = timeKnownVal
+box2val.textContent = priceval
+var box2valname = document.createElement("span")
+box2valname.className = "parameter"
+box2valname.textContent = "Calculated Price"
+box2.appendChild(box2val)
+box2.appendChild(box2valname)
+
+//time that has pasted or timer
+var box3 = document.createElement("div")
+box3.className = "box box3 hvr-underline-from-right"
+
+
+var box3val = document.createElement("span")
+box3val.className = "value2_1"
+box3val.textContent = time
+var box3val2 = document.createElement("span")
+box3val2.className = "value2_2"
+box3val2.textContent = time
+var box3valname = document.createElement("span")
+box3valname.className = "parameter2"
+box3valname.textContent = "Time"
+
+stats.appendChild(box3)
+
+var fznumb = 0
+var fzdenumb = 600
+var fzunixend = getCurrentTime()+fzdenumb
+
+box3.onclick = function CloseEv(e){
+  fznumb = 0
+  fzdenumb = 600
+  fzunixend = getCurrentTime()+600
+  setDataWithKey("PlayerData",Players)
+}
+if (reload == true){
+  fznumb = Players[name].TimeDetails.FrenzyTime
+  fzunixend = Players[name].TimeDetails.FrenzyUnixEnd
+  fzdenumb = fzunixend-getCurrentTime()
+}
+Players[name].TimeDetails.FrenzyTime = fznumb
+Players[name].TimeDetails.FrenzyRunDown = fzdenumb
+Players[name].TimeDetails.FrenzyUnixEnd = fzunixend
+box3.appendChild(box3val2)
+box3.appendChild(box3val)
+box3.appendChild(box3valname)
+
+
+
+function retDoubleDigit(number){
+  if (number <10){
+    return "0"+number
+  }else {
+    return number
+  }
+}
+
+var numb = 0
+var denumb = 0
+var sec = 0
+var min = 0
+var hour = 0
+var day = 0
+
+calcUnixTime = Players[name].UnixTimeOfEnd-getCurrentTime()
+if (Players[name].TimeIsKnown == true){
+  denumb = calcUnixTime
+}
+numb = getCurrentTime()-Players[name].UnixTimeOfStart
+var nhours = Math.floor(numb/3600)
+var nminutes = Math.floor((numb -(nhours *3600))/60)
+var nseconds = numb - (nhours * 3600) - (nminutes *60)
+sec = nseconds
+min = nminutes
+hour = nhours
+Players[name].TimeDetails.curTime = numb
+Players[name].TimeDetails.TimeRunDown = denumb
+Players[name].TimeDetails.SecRunDown = sec
+Players[name].TimeDetails.MinRunDown = min
+Players[name].TimeDetails.HourRunDown = hour
+Players[name].TimeDetails.DayRunDown = day
+setDataWithKey("PlayerData",Players)
+setDataWithKey("PastPlayers",PastPlayers)
+var animate = setInterval(() => {
+  //Set-Reset Map,CH,PpH
+  var plr = Players[name]
+  if (!plr){
+    clearInterval(animate)
+  }
+  
+  chann.textContent = "Channel: ".concat(plr.Channel)
+  mapp.textContent = "Map: ".concat(plr.Map)
+  var nprice = plr.Price
+  box1val.textContent = nprice.concat("m/h")
+
+  if (fzdenumb > 0) {
+    fznumb = fznumb +1
+    fzdenumb = fzdenumb-1
+    var fzhours = Math.floor(fzdenumb/3600)
+    var fzminutes = Math.floor((fzdenumb -(fzhours *3600))/60)
+    var fzseconds = fzdenumb - (fzhours * 3600) - (fzminutes *60)
+    
+    if(fzhours > 0){
+      box3val2.textContent = retDoubleDigit(fzhours)+":"+retDoubleDigit(fzminutes)+":"+retDoubleDigit(fzseconds)
+    }else if(fzminutes > 0){
+      box3val2.textContent = retDoubleDigit(fzminutes)+":"+retDoubleDigit(fzseconds)
+    }else {
+      box3val2.textContent = fzseconds
+    }
+  }else{
+    box3val2.textContent = "Cast!"
+  }
+
+  numb = numb+1
+    sec = sec+1
+    if (sec > 59){
+      sec = 0
+      min = min+1
+      if (min > 59){
+        min = 0
+        hour = hour+1
+        if (hour > 23){
+          hour = 0
+          day = day+1
+        }
+      }
+    }
+  if (Players[name].TimeIsKnown == false) {
+    if (day > 0){
+      box3val.textContent = retDoubleDigit(day)+":"+retDoubleDigit(hour)+":"+retDoubleDigit(min)+":"+retDoubleDigit(sec)
+    }else if(hour > 0){
+      box3val.textContent = retDoubleDigit(hour)+":"+retDoubleDigit(min)+":"+retDoubleDigit(sec)
+    }else if(min > 0){
+      box3val.textContent = retDoubleDigit(min)+":"+retDoubleDigit(sec)
+    }else {
+      box3val.textContent = sec
+    }
+    timehour = hour+(day*24)
+    if (min > 29){
+      timehour = timehour +0.5
+    }
+    newPrice = Players[name].Price*timehour
+    box2val.textContent = newPrice+"m"
+  } else if(Players[name].TimeIsKnown == true && denumb > 0) {
+    numb = numb +1
+    denumb = denumb-1
+    var hours = Math.floor(denumb/3600)
+    var minutes = Math.floor((denumb -(hours *3600))/60)
+    var seconds = denumb - (hours * 3600) - (minutes *60)
+    
+    if(hours > 0){
+      box3val.textContent = retDoubleDigit(hours)+":"+retDoubleDigit(minutes)+":"+retDoubleDigit(seconds)
+    }else if(minutes > 0){
+      box3val.textContent = retDoubleDigit(minutes)+":"+retDoubleDigit(seconds)
+    }else {
+      box3val.textContent = seconds
+    }
+
+    timehour = hour+(day*24)
+    if (min > 29){
+      timehour = timehour +0.5
+    }
+    
+    newPrice = Players[name].Price*timehour
+    box2val.textContent = newPrice+"m"
+
+  }else if(Players[name].TimeIsKnown == true && denumb == 0){
+    
+  }
+  Players[name].TimeDetails.FrenzyTime = fznumb
+  Players[name].TimeDetails.FrenzyRunDown = fzdenumb
+  Players[name].TimeDetails.FrenzyUnixEnd = fzunixend
+  setDataWithKey("PlayerData",Players)
+  setDataWithKey("PastPlayers",PastPlayers)
+}, 1000)
+
+
+  //Close Button
+  var sp2 = document.createElement("span")
+  sp2.className = "close"
+  sp2.textContent = "x"
+  sp2.id = "close"
+  sp2.onclick = function CloseEv(e){
+    e = e || window.event;
+    var target = e.target || e.srcElement;
+    fadeOutEffect(target.parentElement,1)
+    PastPlayers[name] = Players[name]
+    delete Players[name]
+    setDataWithKey("PlayerData",Players)
+    setDataWithKey("PastPlayers",PastPlayers)
+    setTimeout(function() {
+      
+      target.parentElement.remove()
+    }, 500);
+  }
+
+
+  
+  
+  
+  
+  var par = document.getElementById("tags")
+  par.appendChild(cent)
+  cent.appendChild(sp2)
+  cent.appendChild(prof)
+  cent.appendChild(stats)
+  prof.appendChild(img)
+  prof.appendChild(profname)
+  prof.appendChild(job)
+  prof.appendChild(waveholder)
+  prof.appendChild(act)
+  
+  setTimeout(function() {
+  var curch = Players[name].Channel
+  var lowch = 0
+  var curframe = null
+  for (var [i, v] of Object.entries(Players)) {
+    var inch = v.Channel
+    if (inch > curch){
+      lowch = inch
+      curframe = v.Frame
+    }
+  }
+  if (curframe != null){
+    curframe.parentNode.insertBefore(cent,curframe)
+  }
+}, 500);
+  setDataWithKey("PlayerData",Players)
+  setDataWithKey("PastPlayers",PastPlayers)
+  
+}
 
 
 
 function StartSettings(){
   
-    function createNewLabel(name,ch,map,timeVal,time,price){
-
-
-      
-      var par = document.getElementById("tags")
-
-      //Center Frame of Character card
-      var cent = document.createElement("div")
-      cent.className = "center"
-
-      //Setting up Player in Players Dictionary
-      Players[name] = {
-            "Username": name,
-            "Channel": ch,
-            "Map": map,
-            "TimeIsKnown": timeVal,
-            "Time": time,
-            "Price": price,
-            "Frame": cent,
-            "Settings" : {
-              "Calculated Price":0,
-              "PastTime":0,
-              "editingPrice":false,
-              "editingTime":false,
-              "editingName":false,
-              "editingChannel":false,
-              "editingMap":false
-            }
-        }
-
-      //profile
-      var prof = document.createElement("div")
-      prof.className = "profile"
-
-      //improfile
-      var img = document.createElement("div")
-      img.className = "image"
-      var circ1 = document.createElement("div")
-      circ1.className = "circle-1"
-      img.appendChild(circ1)
-      var circ2 = document.createElement("div")
-      circ2.className = "circle-2"
-      img.appendChild(circ2)
-      var imgpic = document.createElement("img")
-      imgpic.alt = name
-      imgpic.width = "70"
-      imgpic.height = "70"
-      imgpic.src = "https://fedi.de/wp-content/uploads/woocommerce-placeholder-600x600.png" //PlaceHolder for Characterimage
-      img.appendChild(imgpic)
-
-      //details
-      var profname = document.createElement("div")
-      profname.className = "name"
-      profname.textContent = name
-      profname.onclick =  function CopyText(){
-        navigator.clipboard.writeText(name);
-      }
-      var job = document.createElement("div")
-      job.className = "job"
-      job.textContent = ""
-
-      //good looking wave lol BROKEN AF STUPID SHT
-      var waveholder = document.createElement("div")
-
-      //wavedetails
-
-      var wavexml = document.createElementNS("http://www.w3.org/2000/svg","svg")
-      //wavexml.setAttribute("xmlns","http://www.w3.org/2000/svg")
-      wavexml.setAttributeNS(null,"width","40px")
-      wavexml.setAttributeNS(null,"height","30px")
-      wavexml.setAttributeNS(null,"viewBox","5 0 80 60")
-      var wavepath = document.createElementNS("http://www.w3.org/2000/svg","path")
-      wavepath.id = "wave"
-      wavepath.setAttributeNS(null,"fill","none")
-      wavepath.setAttributeNS(null,"stroke","#262626")
-      wavepath.setAttributeNS(null,"stroke-width","2")
-      wavepath.setAttributeNS(null,"stroke-linecap","round")
-      wavepath.setAttributeNS(null,"d","M 0 37.5 c 7.684299348848887 0 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15 s 7.172012725592294 15 15 15 s 7.172012725592294 -15 15 -15")
-      waveholder.appendChild(wavexml)
-      wavexml.appendChild(wavepath)
-
-      //actions editable
-      var act = document.createElement("div")
-      act.className = "actions"
-      var chann = document.createElement("button")
-      chann.className = "btn hvr-underline-from-center"
-      chann.textContent = "Channel: ".concat(ch)
-      
-      var mapp = document.createElement("button")
-      mapp.className = "btn hvr-underline-from-center"
-      mapp.textContent = "Map: ".concat(map)
-      mapp.onclick = function CopyCH(){
-        var nMap = Players[name].Map
-        console.log(Players[name].Map)
-        navigator.clipboard.writeText(nMap);
-      }
-      act.appendChild(chann)
-      act.appendChild(mapp)
-
-      //stats
-      var stats = document.createElement("div")
-      stats.className = "stats"
-      //Cost per Hour
-      var box1 = document.createElement("div")
-      box1.className = "box box1 hvr-underline-from-right"
-      stats.appendChild(box1)
-
-      var box1val = document.createElement("span")
-      box1val.className = "value"
-      box1val.textContent = price.concat("m/h")
-      var box1valname = document.createElement("span")
-      box1valname.className = "parameter"
-      box1valname.textContent = "Price"
-      box1.appendChild(box1val)
-      box1.appendChild(box1valname)
-
-      //Cost per Hour calculated with time
-      var box2 = document.createElement("div")
-      box2.className = "box box2 hvr-underline-from-right"
-      stats.appendChild(box2)
-      //console.log(time)
-      //console.log(price)
-      //console.log(((time+1)*price)-price)
-      timeKnownVal = time*price || "0"
-      //console.log(timeKnownVal)
-      var box2val = document.createElement("span")
-      box2val.className = "value"
-      priceval = timeKnownVal
-      box2val.textContent = priceval
-      var box2valname = document.createElement("span")
-      box2valname.className = "parameter"
-      box2valname.textContent = "Calculated Price"
-      box2.appendChild(box2val)
-      box2.appendChild(box2valname)
-
-      //time that has pasted or timer
-      var box3 = document.createElement("div")
-      box3.className = "box box3 hvr-underline-from-right"
-      
-
-      var box3val = document.createElement("span")
-      box3val.className = "value2_1"
-      box3val.textContent = time
-      var box3val2 = document.createElement("span")
-      box3val2.className = "value2_2"
-      box3val2.textContent = time
-      var box3valname = document.createElement("span")
-      box3valname.className = "parameter2"
-      box3valname.textContent = "Time"
-
-      stats.appendChild(box3)
-
-      var fznumb = 0
-      var fzdenumb = 600
-      box3.onclick = function CloseEv(e){
-        fznumb = 0
-        fzdenumb = 600
-      }
-      box3.appendChild(box3val2)
-      box3.appendChild(box3val)
-      box3.appendChild(box3valname)
-      
-      
-
-      function retDoubleDigit(number){
-        if (number <10){
-          return "0"+number
-        }else {
-          return number
-        }
-      }
-
-      var numb = 0
-      var denumb = 0
-      var sec = 0
-      var min = 0
-      var hour = 0
-      var day = 0
-      
-      if (timeVal == true){
-        denumb = time*60*60
-      }
-      var animate = setInterval(() => {
-        //Set-Reset Map,CH,PpH
-        var plr = Players[name]
-        chann.textContent = "Channel: ".concat(plr.Channel)
-        mapp.textContent = "Map: ".concat(plr.Map)
-        var nprice = plr.Price
-        box1val.textContent = nprice.concat("m/h")
-
-        if (fzdenumb > 0) {
-          fznumb = fznumb +1
-          fzdenumb = fzdenumb-1
-          var fzhours = Math.floor(fzdenumb/3600)
-          var fzminutes = Math.floor((fzdenumb -(fzhours *3600))/60)
-          var fzseconds = fzdenumb - (fzhours * 3600) - (fzminutes *60)
-          
-          if(fzhours > 0){
-            box3val2.textContent = retDoubleDigit(fzhours)+":"+retDoubleDigit(fzminutes)+":"+retDoubleDigit(fzseconds)
-          }else if(fzminutes > 0){
-            box3val2.textContent = retDoubleDigit(fzminutes)+":"+retDoubleDigit(fzseconds)
-          }else {
-            box3val2.textContent = fzseconds
-          }
-        }else{
-          box3val2.textContent = "Cast!"
-        }
-
-        numb = numb+1
-          sec = sec+1
-          if (sec > 59){
-            sec = 0
-            min = min+1
-            if (min > 59){
-              min = 0
-              hour = hour+1
-              if (hour > 23){
-                hour = 0
-                day = day+1
-              }
-            }
-          }
-        if (timeVal == false) {
-          if (day > 0){
-            box3val.textContent = retDoubleDigit(day)+":"+retDoubleDigit(hour)+":"+retDoubleDigit(min)+":"+retDoubleDigit(sec)
-          }else if(hour > 0){
-            box3val.textContent = retDoubleDigit(hour)+":"+retDoubleDigit(min)+":"+retDoubleDigit(sec)
-          }else if(min > 0){
-            box3val.textContent = retDoubleDigit(min)+":"+retDoubleDigit(sec)
-          }else {
-            box3val.textContent = sec
-          }
-          timehour = hour+(day*24)
-          if (min > 29){
-            timehour = timehour +0.5
-          }
-          newPrice = price*timehour
-          box2val.textContent = newPrice+"m"
-        } else if(timeVal == true && denumb > 0) {
-          numb = numb +1
-          denumb = denumb-1
-          var hours = Math.floor(denumb/3600)
-          var minutes = Math.floor((denumb -(hours *3600))/60)
-          var seconds = denumb - (hours * 3600) - (minutes *60)
-          
-          if(hours > 0){
-            box3val.textContent = retDoubleDigit(hours)+":"+retDoubleDigit(minutes)+":"+retDoubleDigit(seconds)
-          }else if(minutes > 0){
-            box3val.textContent = retDoubleDigit(minutes)+":"+retDoubleDigit(seconds)
-          }else {
-            box3val.textContent = seconds
-          }
-
-          timehour = hour+(day*24)
-          if (min > 29){
-            timehour = timehour +0.5
-          }
-          newPrice = price*timehour
-          box2val.textContent = newPrice+"m"
-
-        }else if(timeVal == true && denumb == 0){
-          
-        }
-      }, 1000)
-
-
-        //Close Button
-        var sp2 = document.createElement("span")
-        sp2.className = "close"
-        sp2.textContent = "x"
-        sp2.id = "close"
-        sp2.onclick = function CloseEv(e){
-          e = e || window.event;
-          var target = e.target || e.srcElement;
-          fadeOutEffect(target.parentElement,1)
-          PastPlayers[name] = Players[name]
-          delete Players[name]
-          setTimeout(function() {
-            
-            target.parentElement.remove()
-          }, 500);
-        }
-
-
-        
-        
-        
-        
-        var par = document.getElementById("tags")
-        par.appendChild(cent)
-        cent.appendChild(sp2)
-        cent.appendChild(prof)
-        cent.appendChild(stats)
-        prof.appendChild(img)
-        prof.appendChild(profname)
-        prof.appendChild(job)
-        prof.appendChild(waveholder)
-        prof.appendChild(act)
-        
-
-        var curch = ch
-        var lowch = 0
-        var curframe = null
-        for (var [i, v] of Object.entries(Players)) {
-          var inch = v.Channel
-          if (inch > curch){
-            lowch = inch
-            curframe = v.Frame
-          }
-        }
-        if (curframe != null){
-          curframe.parentNode.insertBefore(cent,curframe)
-        }
-        
-    }
+    
 
 
     var plrName = document.getElementById("tag-typer")
@@ -428,7 +510,7 @@ function StartSettings(){
         if (time.value != "") {
           proptimeVal = time.value
         }
-        createNewLabel(plrName.value,channel.value,map.value,timeKnownVal,proptimeVal,pricePerHour.value)
+        createNewLabel(plrName.value,channel.value,map.value,timeKnownVal,proptimeVal,pricePerHour.value,false)
 
         plrName.value = ""
         channel.value = ""
@@ -491,7 +573,9 @@ function SettingsTest(){
 }
 
 function myMove() {
-   
+  for (var [i, v] of Object.entries(Players)) {
+    createNewLabel(v.Username,v.Channel,v.Map,v.Price,v.TimeIsKnown,v.Time,true)
+  }
     //var test = document.getElementById("tag-typer");
     //
     //if (test.style.Tester){
