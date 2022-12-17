@@ -9,15 +9,15 @@
 <h1 id="heading" >Frenzy Service Seller System</h1>
 
 <label id = "toggleButton" class="toggleButton">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100" rel="stylesheet">
-    <p id="nextToCheck" class ="nextToCheck">TimeKnown</p>
-    <input onclick="SettingsTest()" type="checkbox">
-    
-    <div>
-        <svg viewBox="0 0 44 44">
-            <path d="M14,24 L21,31 L39.7428882,11.5937758 C35.2809627,6.53125861 30.0333333,4 24,4 C12.95,4 4,12.95 4,24 C4,35.05 12.95,44 24,44 C35.05,44 44,35.05 44,24 C44,19.3 42.5809627,15.1645919 39.7428882,11.5937758" transform="translate(-2.000000, -2.000000)"></path>
-        </svg>
-    </div>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100" rel="stylesheet">
+  <p id="nextToCheck" class ="nextToCheck">TimeKnown</p>
+  <input onclick="SettingsTest()" type="checkbox">
+  
+  <div>
+      <svg viewBox="0 0 44 44">
+          <path d="M14,24 L21,31 L39.7428882,11.5937758 C35.2809627,6.53125861 30.0333333,4 24,4 C12.95,4 4,12.95 4,24 C4,35.05 12.95,44 24,44 C35.05,44 44,35.05 44,24 C44,19.3 42.5809627,15.1645919 39.7428882,11.5937758" transform="translate(-2.000000, -2.000000)"></path>
+      </svg>
+  </div>
 </label>
 
 
@@ -36,13 +36,7 @@
 
 <div id="tags" class = "taggs">
     <!--<span class="tag"><span onclick="CloseEv()" id = "close" class="close">&times;</span>such tage</span>  -->
-    
-    
-      
-    
-    
-    
-  </div>
+</div>
 
 
 
@@ -64,6 +58,7 @@
 <div class='light x8'></div>
 <div class='light x9'></div>
 
+<a class="docbut" href="https://www.patreon.com/bePatron?u=43141357" target="_blank">Support me!</a>
 
 </body>
 </html>
@@ -71,7 +66,7 @@
 
 
 <script> type="text/javascript"
-var version = "v1.5 | TestingVersion: v1"
+var version = "v1.8"
 document.getElementById("head1").textContent = "Use this tool to sell Frenzy Service "+version
 console.log(version)
 var Players = {}
@@ -94,10 +89,10 @@ return fetch(proxyUrl + targetUrl, {
   .then(data => {
         return data;
     })
-
-
-   
+  
 }
+
+
 
 function RequestMSDataUpdate(username){
   var mrtest = ReqMSData(username)
@@ -186,7 +181,6 @@ function getSessionData(){
     "Time":0,
     "DisplayTime":"00:00"
   }
-  console.log(SessionPlayers)
   for (let [i, v] of Object.entries(SessionPlayers)) {
     tab.Earnings = tab.Earnings+v.CalculatedPrice
     tab.EarningsB = next2AfterDig(tab.EarningsB+(v.CalculatedPrice/1000))
@@ -277,12 +271,14 @@ Players[name] = {
       "Settings" : {
         "CalculatedPrice":0,
         "PastTime":0,
+        "Paid": false,
       }
   }
 
 }else if(Players[name]){
   Players[name].Frame = cent
 }
+
 //profile
 var prof = document.createElement("div")
 prof.className = "profile"
@@ -427,7 +423,17 @@ box3.appendChild(box3val)
 box3.appendChild(box3valname)
 
 
+var sp3 = document.createElement("input")
+sp3.className = "checkclose"
+sp3.textContent = "Paid"
+sp3.id = "checkclose"
+sp3.type = "checkbox"
+sp3.checked = Players[name].Settings.Paid
 
+var sp4 = document.createElement("a")
+sp4.className = "nextCheck"
+sp3.id = "nextCheck"
+sp4.textContent = "Paid"
 
 
 var numb = 0
@@ -467,6 +473,7 @@ var animate = setInterval(() => {
   if (!plr){
     clearInterval(animate)
   }
+  Players[name].Settings.Paid = sp3.checked
   imgpic.src = Players[name].CharacterImageURL
   chann.textContent = "Channel: ".concat(plr.Channel)
   mapp.textContent = "Map: ".concat(plr.Map)
@@ -570,12 +577,17 @@ var animate = setInterval(() => {
 }, 1000)
 
 
+
+
+
+
   //Close Button
   var sp2 = document.createElement("span")
   sp2.className = "close"
   sp2.textContent = "x"
   sp2.id = "close"
   sp2.onclick = function CloseEv(e){
+    if (sp3.checked == true){
     e = e || window.event;
     var target = e.target || e.srcElement;
     fadeOutEffect(target.parentElement,1)
@@ -615,15 +627,18 @@ var animate = setInterval(() => {
       target.parentElement.remove()
     }, 500);
   }
+  }
 
 
-  
+
   
   
   
   var par = document.getElementById("tags")
   par.appendChild(cent)
   cent.appendChild(sp2)
+  cent.appendChild(sp3)
+  cent.appendChild(sp4)
   cent.appendChild(prof)
   cent.appendChild(stats)
   prof.appendChild(img)
@@ -944,11 +959,27 @@ function myMove() {
 //document.querySelector('body').addEventListener('click', () => {
 //  clearInterval(animate);
 //})
+//https://www.patreon.com/bePatron?u=43141357
 
+const button = document.querySelector('.docbut');
+
+button.addEventListener('mouseenter', () => {
+  button.innerHTML = 'Patreon';
+});
+
+button.addEventListener('mouseleave', () => {
+  button.innerHTML = 'Support me!';
+});
 </script>
 
 
 <style> 
+
+
+/* CSS */
+
+
+
 
 #tags{
   -webkit-border-radius: 10px;
@@ -1025,7 +1056,6 @@ function myMove() {
     top: 2%;
     z-index: 3;
     visibility: visible;
-    position: absolute;
     background: none;
     font-size: 1.1rem;
     box-sizing: border-box;
@@ -1033,7 +1063,25 @@ function myMove() {
     cursor: default;
 }
 
+.checkclose {
+    position: absolute;
+    left: 54.5%;
+    top: 3%;
+    color: #d4b653;
+    cursor: default;
+    margin: .4rem;
+    font: 1rem 'Fira Sans', sans-serif;
+}
 
+.nextCheck {
+    position: absolute;
+    left: 44.5%;
+    top: 2.5%;
+    color: #d4b653;
+    cursor: default;
+    margin: 0.4rem;
+    font: 0.9rem 'Fira Sans', sans-serif;
+}
 .tag:hover .close{
   visibility: visible;
   
@@ -1180,6 +1228,26 @@ function myMove() {
     left: 50%;
     opacity : 0;
     pointer-events: none;
+}
+
+.docbut {
+  position:absolute;
+  display: inline-block;
+  color: #dbb433;
+  background-color: #686868;
+  border-radius: 5px;
+  left: 90%;
+  top: 95%;
+  margin: auto;
+  padding: 10px ;
+  transition: all 0.3s ease-in-out;
+}
+
+.docbut:hover {
+  background-color: #f96854;
+  color: white;
+  transform: scale(1);
+  transition: all 0.3s ease-in-out;
 }
 
 #ovall, #ovmeso, #ovtime, #sess, #sessmeso, #sesstime{
