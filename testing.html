@@ -27,7 +27,12 @@
 <input id="tag-typer3" type="text" autocomplete="off" placeholder="Map..."/>
 <input id="tag-typer4" type="text" autocomplete="off" placeholder="PricePerHour..."/>
 <input id="tag-typer5" type="text" autocomplete="off" placeholder="Time[Hour]..."/>
-
+<p id="ovall" class ="ovall">Overall</p>
+<p id="ovmeso" class ="ovmeso">Earnings: 0m</p>
+<p id="ovtime" class ="ovtime">Time: 00:00:00:00</p>
+<p id="sess" class ="sess">Session</p>
+<p id="sessmeso" class ="sessmeso">Earnings: 0m</p>
+<p id="sesstime" class ="sesstime">Time: 00:00:00:00</p>
 
 <div id="tags" class = "taggs">
     <!--<span class="tag"><span onclick="CloseEv()" id = "close" class="close">&times;</span>such tage</span>  -->
@@ -42,7 +47,7 @@
 
 
 <link href="https://fonts.googleapis.com/css?family=Roboto:100" rel="stylesheet">
-<p id='head1' class='header'>Use this tool to sell Frenzy Service v1.5</p>
+<p id='head1' class='header'>Use this tool to sell Frenzy Service | Error Version Unknown</p>
 <p id='head2' class='header'>Much better!</p>
 <p id='head3' class='header'>ign: Mitsuki0</p>
 <p id='head4' class='header'>Made by Assasine03#9403</p>
@@ -66,9 +71,12 @@
 
 
 <script> type="text/javascript"
-console.log("v1.5")
+var version = "v1.5 | TestingVersion: v1"
+document.getElementById("head1").textContent = "Use this tool to sell Frenzy Service "+version
+console.log(version)
 var Players = {}
 var PastPlayers = {}
+var SessionPlayers = {}
 
 function ReqMSData(username){
 
@@ -158,6 +166,76 @@ if (getDataWithKey("PlayerData") == false){
   Players = getDataWithKey("PlayerData")
   PastPlayers = getDataWithKey("PastPlayers")
 }
+
+function retDoubleDigit(number){
+  if (number <10){
+    return "0"+number
+  }else {
+    return number
+  }
+}
+function next2AfterDig(a) {
+
+return Math.round((a + Number.EPSILON) * 100) / 100
+}
+
+function getSessionData(){
+   let tab = {
+    "Earnings":0,
+    "EarningsB":0,
+    "Time":0,
+    "DisplayTime":"00:00"
+  }
+  console.log(SessionPlayers)
+  for (let [i, v] of Object.entries(SessionPlayers)) {
+    tab.Earnings = tab.Earnings+v.CalculatedPrice
+    tab.EarningsB = next2AfterDig(tab.EarningsB+(v.CalculatedPrice/1000))
+    tab.Time = tab.Time+v.PastTime
+  }
+  let days = Math.floor(tab.Time / (3600*24));
+  let hours = Math.floor(tab.Time % (3600*24) / 3600);
+  let minutes = Math.floor(tab.Time % 3600 / 60);
+  let seconds = Math.floor(tab.Time % 60);
+  
+  tab.DisplayTime = (days)+":"+retDoubleDigit(hours)+":"+retDoubleDigit(minutes)+":"+retDoubleDigit(seconds)
+  return tab
+}
+
+function getPastData(){
+  let tab = {
+    "Earnings":0,
+    "EarningsB":0,
+    "Time":0,
+    "DisplayTime":"00:00"
+  }
+  for (let [i, v] of Object.entries(PastPlayers)) {
+    tab.Earnings = tab.Earnings+v.CalculatedPrice
+    tab.EarningsB = next2AfterDig(tab.EarningsB+(v.CalculatedPrice/1000))
+    tab.Time = tab.Time+v.PastTime
+  }
+  let days = Math.floor(tab.Time / (3600*24));
+  let hours = Math.floor(tab.Time % (3600*24) / 3600);
+  let minutes = Math.floor(tab.Time % 3600 / 60);
+  let seconds = Math.floor(tab.Time % 60);
+  
+  tab.DisplayTime = (days)+":"+retDoubleDigit(hours)+":"+retDoubleDigit(minutes)+":"+retDoubleDigit(seconds)
+  return tab
+}
+
+function updateUserStats(showInB){
+  pdata = getPastData()
+  sdata = getSessionData()
+  if (showInB == false){
+    document.getElementById("ovmeso").textContent = "Earnings: "+pdata.Earnings+"m"
+    document.getElementById("sessmeso").textContent = "Earnings: "+sdata.Earnings+"m"
+  }else{
+    document.getElementById("ovmeso").textContent = "Earnings: "+pdata.EarningsB+"B"
+    document.getElementById("sessmeso").textContent = "Earnings: "+sdata.EarningsB+"B"
+  }
+  document.getElementById("sesstime").textContent = "Time: "+sdata.DisplayTime
+  document.getElementById("ovtime").textContent = "Time: "+pdata.DisplayTime
+}
+updateUserStats(true)
 //console.log(Math.floor(Date.now() / 1000))
 var Toggle = false
 
@@ -187,7 +265,7 @@ Players[name] = {
         "FrenzyTime": 0,
         "FrenzyRunDown": 0,
         "FrenzyUnixEnd": 0,
-        "CurTime": 0,
+        "curTime": 0,
         "TimeRunDown": 0,
         "SecRunDown": 0,
         "MinRunDown": 0,
@@ -199,13 +277,9 @@ Players[name] = {
       "Settings" : {
         "CalculatedPrice":0,
         "PastTime":0,
-        "editingPrice":false,
-        "editingTime":false,
-        "editingName":false,
-        "editingChannel":false,
-        "editingMap":false
       }
   }
+
 }else if(Players[name]){
   Players[name].Frame = cent
 }
@@ -354,13 +428,7 @@ box3.appendChild(box3valname)
 
 
 
-function retDoubleDigit(number){
-  if (number <10){
-    return "0"+number
-  }else {
-    return number
-  }
-}
+
 
 var numb = 0
 var denumb = 0
@@ -424,6 +492,7 @@ var animate = setInterval(() => {
   }
 
   numb = numb+1
+  Players[name].Settings.PastTime = numb
     sec = sec+1
     if (sec > 59){
       sec = 0
@@ -453,8 +522,10 @@ var animate = setInterval(() => {
     }
     newPrice = Players[name].Price*timehour
     box2val.textContent = newPrice+"m"
+    Players[name].Settings.CalculatedPrice = newPrice
   } else if(Players[name].TimeIsKnown == true && denumb > 0) {
     numb = numb +1
+    Players[name].Settings.PastTime = numb
     denumb = denumb-1
     var hours = Math.floor(denumb/3600)
     var minutes = Math.floor((denumb -(hours *3600))/60)
@@ -475,13 +546,25 @@ var animate = setInterval(() => {
     
     newPrice = Players[name].Price*timehour
     box2val.textContent = newPrice+"m"
+    Players[name].Settings.CalculatedPrice = newPrice
+  }else if(Players[name].TimeIsKnown == true && denumb <= 0){
 
-  }else if(Players[name].TimeIsKnown == true && denumb == 0){
-    
+    box3val.textContent = "Finished"
+    timehour = hour+(day*24)
+    if (min > 29){
+      timehour = timehour +0.5
+    }
+    newPrice = Players[name].Price*timehour
+    box2val.textContent = newPrice+"m"
+    Players[name].Settings.CalculatedPrice = newPrice
   }
   Players[name].TimeDetails.FrenzyTime = fznumb
   Players[name].TimeDetails.FrenzyRunDown = fzdenumb
   Players[name].TimeDetails.FrenzyUnixEnd = fzunixend
+
+  
+  Players[name].Settings.PastTime = getCurrentTime()-Players[name].UnixTimeOfStart
+
   setDataWithKey("PlayerData",Players)
   setDataWithKey("PastPlayers",PastPlayers)
 }, 1000)
@@ -496,10 +579,37 @@ var animate = setInterval(() => {
     e = e || window.event;
     var target = e.target || e.srcElement;
     fadeOutEffect(target.parentElement,1)
-    PastPlayers[name] = Players[name]
+    if (PastPlayers[name]){
+      PastPlayers[name] = {
+      "Username": name,
+      "PastTime": PastPlayers[name].PastTime + Players[name].Settings.PastTime,
+      "CalculatedPrice": PastPlayers[name].CalculatedPrice + Players[name].Settings.CalculatedPrice
+    }
+    
+    }else{
+      PastPlayers[name] = {
+      "Username": name,
+      "PastTime": Players[name].Settings.PastTime,
+      "CalculatedPrice": Players[name].Settings.CalculatedPrice
+    }
+    }
+    if (SessionPlayers[name]){
+    SessionPlayers[name] = {
+      "Username": name,
+      "PastTime": SessionPlayers[name].PastTime + Players[name].Settings.PastTime,
+      "CalculatedPrice": SessionPlayers[name].CalculatedPrice + Players[name].Settings.CalculatedPrice
+    }
+    }else{
+    SessionPlayers[name] = {
+      "Username": name,
+      "PastTime": Players[name].Settings.PastTime,
+      "CalculatedPrice": Players[name].Settings.CalculatedPrice
+    }
+  }
     delete Players[name]
     setDataWithKey("PlayerData",Players)
     setDataWithKey("PastPlayers",PastPlayers)
+    updateUserStats()
     setTimeout(function() {
       
       target.parentElement.remove()
@@ -648,11 +758,54 @@ function myMove() {
         elemtag.style.pointerEvents = "auto"
         elemtag.style.left = 10+"%";
         setTimeout(function() {
+        var elemtag = document.getElementById("ovall");
+        elemtag.style.transition = 1 + "s";
+        elemtag.style.opacity = 1;
+        elemtag.style.pointerEvents = "auto"
+        elemtag.style.left = 10+"%";
+        setTimeout(function() {
+        var elemtag = document.getElementById("ovmeso");
+        elemtag.style.transition = 1 + "s";
+        elemtag.style.opacity = 1;
+        elemtag.style.pointerEvents = "auto"
+        elemtag.style.left = 11+"%";
+      }, 50);
+        setTimeout(function() {
+        var elemtag = document.getElementById("ovtime");
+        elemtag.style.transition = 1 + "s";
+        elemtag.style.opacity = 1;
+        elemtag.style.pointerEvents = "auto"
+        elemtag.style.left = 11+"%";
+        
+      }, 75);
+    }, 600);
+        setTimeout(function() {
             var elemtag = document.getElementById("tag-typer2");
             elemtag.style.transition = 1 + "s";
             elemtag.style.opacity = 1;
             elemtag.style.pointerEvents = "auto"
             elemtag.style.left = 23+"%";
+            setTimeout(function() {
+              var elemtag = document.getElementById("sess");
+              elemtag.style.transition = 1 + "s";
+              elemtag.style.opacity = 1;
+              elemtag.style.pointerEvents = "auto"
+              elemtag.style.left = 23+"%";
+              setTimeout(function() {
+                var elemtag = document.getElementById("sessmeso");
+                elemtag.style.transition = 1 + "s";
+                elemtag.style.opacity = 1;
+                elemtag.style.pointerEvents = "auto"
+                elemtag.style.left = 24+"%";
+              }, 50);
+                setTimeout(function() {
+                var elemtag = document.getElementById("sesstime");
+                elemtag.style.transition = 1 + "s";
+                elemtag.style.opacity = 1;
+                elemtag.style.pointerEvents = "auto"
+                elemtag.style.left = 24+"%";
+              }, 75);
+            }, 600);
             setTimeout(function() {
                 var elemtag = document.getElementById("tag-typer3");
                 elemtag.style.transition = 1 + "s";
@@ -877,6 +1030,7 @@ function myMove() {
     font-size: 1.1rem;
     box-sizing: border-box;
     color: #d4b653;
+    cursor: default;
 }
 
 
@@ -1026,6 +1180,54 @@ function myMove() {
     left: 50%;
     opacity : 0;
     pointer-events: none;
+}
+
+#ovall, #ovmeso, #ovtime, #sess, #sessmeso, #sesstime{
+    outline: none;
+    border-radius: 10px;
+    border: 0px solid #dbb433;
+    pointer-events: none;
+    padding: 6px;
+    margin: auto;
+    position: absolute;
+    color: #dbb433;
+    opacity : 0;
+}
+
+#ovall{
+  left: 15%;
+  top: 30%;
+  font-size: 30px;
+}
+
+#ovmeso{
+  left: 16%;
+  top: 34%;
+  font-size: 20px;
+}
+
+#ovtime{
+  left: 16%;
+  top: 37%;
+  font-size: 20px;
+}
+
+#sess{
+  left: 30%;
+  top: 30%;
+  font-size: 30px;
+}
+
+#sessmeso{
+  left: 31%;
+  top: 34%;
+  font-size: 20px;
+}
+
+#sesstime{
+  left: 31%;
+  top: 37%;
+  font-size: 20px;
 }
 
 .button2{
