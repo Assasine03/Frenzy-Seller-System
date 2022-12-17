@@ -66,7 +66,7 @@
 
 
 <script> type="text/javascript"
-var version = "v1.8"
+var version = "v1.9"
 document.getElementById("head1").textContent = "Use this tool to sell Frenzy Service "+version
 console.log(version)
 var Players = {}
@@ -216,7 +216,12 @@ function getPastData(){
   return tab
 }
 
-function updateUserStats(showInB){
+function updateUserStats(showInB,elem){
+  sectIsGath = false
+  if (elem == "ova" || elem == "sess"){
+    sectIsGath = true
+  }
+  if (sectIsGath == false){
   pdata = getPastData()
   sdata = getSessionData()
   if (showInB == false){
@@ -228,8 +233,44 @@ function updateUserStats(showInB){
   }
   document.getElementById("sesstime").textContent = "Time: "+sdata.DisplayTime
   document.getElementById("ovtime").textContent = "Time: "+pdata.DisplayTime
+}else if(sectIsGath == true){
+  if (elem == "ova"){
+    if (showInB == false){
+    document.getElementById("ovmeso").textContent = "Earnings: "+pdata.Earnings+"m"
+
+  }else{
+    document.getElementById("ovmeso").textContent = "Earnings: "+pdata.EarningsB+"B"
+
+  }
+  }else if(elem == "sess"){
+    if (showInB == false){
+    document.getElementById("sessmeso").textContent = "Earnings: "+sdata.Earnings+"m"
+  }else{
+    document.getElementById("sessmeso").textContent = "Earnings: "+sdata.EarningsB+"B"
+  }
+  }
 }
-updateUserStats(true)
+
+}
+updateUserStats(false)
+var ovamesoele = document.getElementById("ovmeso")
+var sessmesoele = document.getElementById("sessmeso")
+
+ovamesoele.addEventListener("mouseenter", function(){
+  updateUserStats(true,"ova")
+})
+
+sessmesoele.addEventListener("mouseenter", function(){
+  updateUserStats(true,"sess")
+})
+
+ovamesoele.addEventListener("mouseleave", function(){
+  updateUserStats(false,"ova")
+})
+
+sessmesoele.addEventListener("mouseleave", function(){
+  updateUserStats(false,"sess")
+})
 //console.log(Math.floor(Date.now() / 1000))
 var Toggle = false
 
@@ -272,6 +313,8 @@ Players[name] = {
         "CalculatedPrice":0,
         "PastTime":0,
         "Paid": false,
+        "Pause": false,
+        "PauseTime": 0
       }
   }
 
@@ -432,9 +475,20 @@ sp3.checked = Players[name].Settings.Paid
 
 var sp4 = document.createElement("a")
 sp4.className = "nextCheck"
-sp3.id = "nextCheck"
+sp4.id = "nextCheck"
 sp4.textContent = "Paid"
 
+var sp5= document.createElement("input")
+sp5.className = "checkPause"
+sp5.textContent = "Paid"
+sp5.id = "checkPause"
+sp5.type = "checkbox"
+sp5.checked = Players[name].Settings.Pause
+
+var sp6 = document.createElement("a")
+sp6.className = "nextPause"
+sp6.id = "nextPause"
+sp6.textContent = "Pause"
 
 var numb = 0
 var denumb = 0
@@ -443,11 +497,21 @@ var min = 0
 var hour = 0
 var day = 0
 
+var extra = Players[name].Settings.PauseTime-getCurrentTime()
+if (getCurrentTime() == extra || Players[name].Settings.Pause == false){
+  extra = 0
+}
+if (Players[name].Settings.Pause == true && Players[name].TimeIsKnown == true){
+  extra = -(extra)
+}
+
 calcUnixTime = Players[name].UnixTimeOfEnd-getCurrentTime()
 if (Players[name].TimeIsKnown == true){
-  denumb = calcUnixTime
+  denumb = calcUnixTime+extra
 }
-numb = getCurrentTime()-Players[name].UnixTimeOfStart
+
+
+numb = getCurrentTime()-Players[name].UnixTimeOfStart+extra
 var nhours = Math.floor(numb/3600)
 var nminutes = Math.floor((numb -(nhours *3600))/60)
 var nseconds = numb - (nhours * 3600) - (nminutes *60)
@@ -464,8 +528,20 @@ setDataWithKey("PlayerData",Players)
 setDataWithKey("PastPlayers",PastPlayers)
 if (Players[name].CharacterImageURL == "https://fedi.de/wp-content/uploads/woocommerce-placeholder-600x600.png"){
   console.log(name,"data has been requested")
-RequestMSDataUpdate(name)
+  RequestMSDataUpdate(name)
 }
+
+
+sp5.addEventListener('click', function() {
+  if (this.checked) {
+    Players[name].Settings.PauseTime = getCurrentTime()
+  } else {
+    
+    Players[name].UnixTimeOfStart = Players[name].UnixTimeOfStart+(getCurrentTime()-Players[name].Settings.PauseTime)
+    Players[name].UnixTimeOfEnd = Players[name].UnixTimeOfEnd+(getCurrentTime()-Players[name].Settings.PauseTime)
+    Players[name].Settings.PauseTime = 0
+  }
+});
 
 var animate = setInterval(() => {
   //Set-Reset Map,CH,PpH
@@ -474,15 +550,18 @@ var animate = setInterval(() => {
     clearInterval(animate)
   }
   Players[name].Settings.Paid = sp3.checked
+  Players[name].Settings.Pause = sp5.checked
   imgpic.src = Players[name].CharacterImageURL
   chann.textContent = "Channel: ".concat(plr.Channel)
   mapp.textContent = "Map: ".concat(plr.Map)
   var nprice = plr.Price
   box1val.textContent = nprice.concat("m/h")
-
+  
   if (fzdenumb > 0) {
+    if(Players[name].Settings.Pause == false){
     fznumb = fznumb +1
     fzdenumb = fzdenumb-1
+    }
     var fzhours = Math.floor(fzdenumb/3600)
     var fzminutes = Math.floor((fzdenumb -(fzhours *3600))/60)
     var fzseconds = fzdenumb - (fzhours * 3600) - (fzminutes *60)
@@ -497,10 +576,11 @@ var animate = setInterval(() => {
   }else{
     box3val2.textContent = "Cast!"
   }
-
-  numb = numb+1
-  Players[name].Settings.PastTime = numb
+  if(Players[name].Settings.Pause == false){
+    numb = numb+1
+    Players[name].Settings.PastTime = numb
     sec = sec+1
+    }
     if (sec > 59){
       sec = 0
       min = min+1
@@ -531,9 +611,11 @@ var animate = setInterval(() => {
     box2val.textContent = newPrice+"m"
     Players[name].Settings.CalculatedPrice = newPrice
   } else if(Players[name].TimeIsKnown == true && denumb > 0) {
-    numb = numb +1
-    Players[name].Settings.PastTime = numb
-    denumb = denumb-1
+    if(Players[name].Settings.Pause == false){
+      numb = numb +1
+      Players[name].Settings.PastTime = numb
+      denumb = denumb-1
+    }
     var hours = Math.floor(denumb/3600)
     var minutes = Math.floor((denumb -(hours *3600))/60)
     var seconds = denumb - (hours * 3600) - (minutes *60)
@@ -621,7 +703,7 @@ var animate = setInterval(() => {
     delete Players[name]
     setDataWithKey("PlayerData",Players)
     setDataWithKey("PastPlayers",PastPlayers)
-    updateUserStats()
+    updateUserStats(false)
     setTimeout(function() {
       
       target.parentElement.remove()
@@ -639,6 +721,8 @@ var animate = setInterval(() => {
   cent.appendChild(sp2)
   cent.appendChild(sp3)
   cent.appendChild(sp4)
+  cent.appendChild(sp5)
+  cent.appendChild(sp6)
   cent.appendChild(prof)
   cent.appendChild(stats)
   prof.appendChild(img)
@@ -1082,6 +1166,26 @@ button.addEventListener('mouseleave', () => {
     margin: 0.4rem;
     font: 0.9rem 'Fira Sans', sans-serif;
 }
+
+.checkPause {
+    position: absolute;
+    left: 54.5%;
+    top: 9%;
+    color: #d4b653;
+    cursor: default;
+    margin: .4rem;
+    font: 1rem 'Fira Sans', sans-serif;
+}
+
+.nextPause {
+    position: absolute;
+    left: 41.5%;
+    top: 8.5%;
+    color: #d4b653;
+    cursor: default;
+    margin: 0.4rem;
+    font: 0.9rem 'Fira Sans', sans-serif;
+}
 .tag:hover .close{
   visibility: visible;
   
@@ -1234,13 +1338,14 @@ button.addEventListener('mouseleave', () => {
   position:absolute;
   display: inline-block;
   color: #dbb433;
-  background-color: #686868;
+  background-color: #1f1d21;
   border-radius: 5px;
-  left: 90%;
+  left: 94%;
   top: 95%;
   margin: auto;
   padding: 10px ;
   transition: all 0.3s ease-in-out;
+  opacity: 0.5;
 }
 
 .docbut:hover {
